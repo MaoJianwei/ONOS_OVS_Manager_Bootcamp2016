@@ -21,9 +21,18 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
+import org.onosproject.drivers.ovsdb.OvsdbBridgeConfig;
+import org.onosproject.net.Device;
+import org.onosproject.net.DeviceId;
+import org.onosproject.net.behaviour.BridgeConfig;
+import org.onosproject.net.behaviour.BridgeName;
 import org.onosproject.net.device.DeviceService;
+import org.onosproject.net.driver.DriverHandler;
+import org.onosproject.net.driver.DriverService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
 
 /**
  * Skeletal ONOS application component.
@@ -36,11 +45,30 @@ public class OvsManager {
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     DeviceService deviceService;
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    DriverService driverService;
+
+    DeviceId controllerId;
+
+
     @Activate
     protected void activate() {
         log.info("Started");
 
         Iterable iter = deviceService.getDevices();
+        Iterator iterkey = iter.iterator();
+        while(iterkey.hasNext()){
+            Device device = ((Device)iterkey.next());
+            if(device.type() == Device.Type.CONTROLLER){
+                controllerId = device.id();
+            }
+        }
+
+
+        DriverHandler handler = driverService.createHandler(controllerId);
+        BridgeConfig bridgeConfig = handler.behaviour(BridgeConfig.class);
+        bridgeConfig.addBridge(BridgeName.bridgeName("maotestbr"), "0000000000123456","qindao");
+
 
         int a = 0;
     }
