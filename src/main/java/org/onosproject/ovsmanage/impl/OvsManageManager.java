@@ -303,7 +303,7 @@ public class OvsManageManager implements OvsManageService {
     }
 
     /**
-     * Listener to Device Event and OVSDB connection
+     * Listener to Device Event and OVSDB connection.
      */
     private class InnerDeviceListener implements DeviceListener {
         @Override

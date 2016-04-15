@@ -65,11 +65,7 @@ public class OVSPipeline extends DefaultSingleTablePipeline
     protected FlowRuleService flowRuleService;
     protected DeviceService deviceService;
     private static final int TIME_OUT = 0;
-//    private static final int CLASSIFIER_TABLE = 0;
-//    private static final int ARP_TABLE = 10;
-//    private static final int DNAT_TABLE = 20;
     private static final int L3FWD_TABLE = 0;
-//    private static final int SNAT_TABLE = 40;
     private static final int MAC_TABLE = 1;
     private static final int TABLE_MISS_PRIORITY = 0;
 
@@ -94,10 +90,10 @@ public class OVSPipeline extends DefaultSingleTablePipeline
 
     @Override
     public void forward(ForwardingObjective fwd) {
-        if (!VTN_APP_ID.equals(fwd.appId().name())) {
-            super.forward(fwd);
-            return;
-        }
+//        if (!VTN_APP_ID.equals(fwd.appId().name())) {
+//            super.forward(fwd);
+//            return;
+//        }
         Collection<FlowRule> rules;
         FlowRuleOperations.Builder flowOpsBuilder = FlowRuleOperations
                 .builder();
@@ -137,67 +133,14 @@ public class OVSPipeline extends DefaultSingleTablePipeline
     }
 
     private void initializePipeline() {
-//        processClassifierTable(true);
-//        processArpTable(true);
-//        processDnatTable(true);
         processL3fwdTable(true);
-//        processSnatTable(true);
         processMacTable(true);
     }
-
-//    private void processClassifierTable(boolean install) {
-//        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
-//        TrafficTreatment.Builder treatment = DefaultTrafficTreatment.builder();
-//
-//        treatment.transition(MAC_TABLE);
-//
-//        FlowRule rule;
-//        rule = DefaultFlowRule.builder().forDevice(deviceId)
-//                .withSelector(selector.build())
-//                .withTreatment(treatment.build())
-//                .withPriority(TABLE_MISS_PRIORITY).fromApp(appId)
-//                .makePermanent().forTable(CLASSIFIER_TABLE).build();
-//
-//        applyRules(install, rule);
-//    }
-
-//    private void processArpTable(boolean install) {
-//        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
-//        TrafficTreatment.Builder treatment = DefaultTrafficTreatment.builder();
-//
-//        treatment.transition(MAC_TABLE);
-//
-//        FlowRule rule;
-//        rule = DefaultFlowRule.builder().forDevice(deviceId)
-//                .withSelector(selector.build())
-//                .withTreatment(treatment.build())
-//                .withPriority(TABLE_MISS_PRIORITY).fromApp(appId)
-//                .makePermanent().forTable(ARP_TABLE).build();
-//
-//        applyRules(install, rule);
-//    }
-
-//    private void processDnatTable(boolean install) {
-//        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
-//        TrafficTreatment.Builder treatment = DefaultTrafficTreatment.builder();
-//
-//        treatment.transition(MAC_TABLE);
-//
-//        FlowRule rule;
-//        rule = DefaultFlowRule.builder().forDevice(deviceId)
-//                .withSelector(selector.build())
-//                .withTreatment(treatment.build())
-//                .withPriority(TABLE_MISS_PRIORITY).fromApp(appId)
-//                .makePermanent().forTable(DNAT_TABLE).build();
-//
-//        applyRules(install, rule);
-//    }
 
     private void processL3fwdTable(boolean install) {
         TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
         TrafficTreatment.Builder treatment = DefaultTrafficTreatment.builder();
 
-//        treatment.transition(SNAT_TABLE);
         treatment.drop();
 
 
@@ -210,22 +153,6 @@ public class OVSPipeline extends DefaultSingleTablePipeline
 
         applyRules(install, rule);
     }
-
-//    private void processSnatTable(boolean install) {
-//        TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
-//        TrafficTreatment.Builder treatment = DefaultTrafficTreatment.builder();
-//
-//        treatment.transition(MAC_TABLE);
-//
-//        FlowRule rule;
-//        rule = DefaultFlowRule.builder().forDevice(deviceId)
-//                .withSelector(selector.build())
-//                .withTreatment(treatment.build())
-//                .withPriority(TABLE_MISS_PRIORITY).fromApp(appId)
-//                .makePermanent().forTable(SNAT_TABLE).build();
-//
-//        applyRules(install, rule);
-//    }
 
     private void processMacTable(boolean install) {
         TrafficSelector.Builder selector = DefaultTrafficSelector.builder();
@@ -311,48 +238,7 @@ public class OVSPipeline extends DefaultSingleTablePipeline
             forTable = MAC_TABLE;
             return reassemblyFlowRule(ruleBuilder, tb, transition, forTable);
         }
-//        // CLASSIFIER table flow rules
-//        if (selector.getCriterion(Type.IN_PORT) != null) {
-//            forTable = CLASSIFIER_TABLE;
-//            if (selector.getCriterion(Type.ETH_SRC) != null
-//                    && selector.getCriterion(Type.ETH_DST) != null) {
-//                transition = L3FWD_TABLE;
-//            } else if (selector.getCriterion(Type.ETH_SRC) != null
-//                    || selector.getCriterion(Type.TUNNEL_ID) != null) {
-//                transition = MAC_TABLE;
-//            } else if (selector.getCriterion(Type.IPV4_DST) != null) {
-//                transition = DNAT_TABLE;
-//            }
-//            return reassemblyFlowRule(ruleBuilder, tb, transition, forTable);
-//        }
-//        // ARP table flow rules
-//        if (selector.getCriterion(Type.ETH_TYPE) != null
-//                && selector.getCriterion(Type.ETH_TYPE).equals(Criteria
-//                        .matchEthType(EtherType.ARP.ethType().toShort()))) {
-//            // CLASSIFIER table arp flow rules
-//            if (selector.getCriterion(Type.TUNNEL_ID) == null) {
-//                transition = ARP_TABLE;
-//                forTable = CLASSIFIER_TABLE;
-//                return reassemblyFlowRule(ruleBuilder, tb, transition, forTable);
-//            }
-//            forTable = ARP_TABLE;
-//            return reassemblyFlowRule(ruleBuilder, tb, transition, forTable);
-//        }
-
-//        // DNAT table flow rules
-//        if (selector.getCriterion(Type.IPV4_DST) != null) {
-//            transition = L3FWD_TABLE;
-//            forTable = DNAT_TABLE;
-//            return reassemblyFlowRule(ruleBuilder, tb, transition, forTable);
-//        }
-//        // SNAT table flow rules
-//        if (selector.getCriterion(Type.TUNNEL_ID) != null
-//                && selector.getCriterion(Type.IPV4_SRC) != null) {
-//            transition = MAC_TABLE;
-//            forTable = SNAT_TABLE;
-//            return reassemblyFlowRule(ruleBuilder, tb, transition, forTable);
-//        }
-        return Collections.singletonList(ruleBuilder.build()); //
+        return Collections.singletonList(ruleBuilder.build());
     }
 
     private Collection<FlowRule> reassemblyFlowRule(FlowRule.Builder ruleBuilder,
