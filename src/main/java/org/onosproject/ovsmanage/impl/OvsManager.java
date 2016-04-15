@@ -18,7 +18,10 @@ package org.onosproject.ovsmanage.impl;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
+import org.onosproject.net.device.DeviceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +33,16 @@ public class OvsManager {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    DeviceService deviceService;
+
     @Activate
     protected void activate() {
         log.info("Started");
+
+        Iterable iter = deviceService.getDevices();
+
+        int a = 0;
     }
 
     @Deactivate
