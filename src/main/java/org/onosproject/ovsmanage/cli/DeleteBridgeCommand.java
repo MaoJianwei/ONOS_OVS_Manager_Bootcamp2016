@@ -17,12 +17,11 @@ package org.onosproject.ovsmanage.cli;
 
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
-//import org.onosproject.cli.AbstractShellCommand;
 import org.onosproject.cli.AbstractShellCommand;
 import org.onosproject.ovsmanage.intf.OvsManageService;
 
 /**
- * CLI to create an OVS switch
+ * CLI to delete an OVS switch.
  */
 @Command(scope = "onos", name = "delete-bridge",
         description = "delete a bridge on specific OVS")
@@ -32,20 +31,20 @@ public class DeleteBridgeCommand extends AbstractShellCommand {
 
     @Argument(index = 0, name = "bridge-name", description = "name of Bridge",
             required = true, multiValued = false)
-    String bridgeName;
+    private String bridgeName;
 
     @Override
     protected void execute() {
 
-        if(bridgeName == null){
+        if (bridgeName == null) {
             return;
         }
 
         OvsManageService ovsService = AbstractShellCommand.get(OvsManageService.class);
 
-        if(ovsService.deleteOVS(bridgeName)){
+        if (ovsService.deleteOvs(bridgeName)) {
             print(DELETE_BRIDGE_FORMAT, bridgeName);
-        }else {
+        } else {
             print(DELETE_BRIDGE_FORMAT, "fail");
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-present Open Networking Laboratory
+ * Copyright 2015-present Open Networking Laboratory
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,13 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.onlab.packet.EthType;
-import org.onlab.packet.IpAddress;
 import org.onlab.packet.IpPrefix;
 import org.onlab.packet.MacAddress;
 import org.onlab.util.KryoNamespace;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.core.CoreService;
-import org.onosproject.drivers.ovsdb.OvsdbBridgeConfig;
 import org.onosproject.net.Device;
 import org.onosproject.net.DeviceId;
-import org.onosproject.net.Host;
 import org.onosproject.net.behaviour.BridgeConfig;
 import org.onosproject.net.behaviour.BridgeDescription;
 import org.onosproject.net.behaviour.BridgeName;
@@ -49,9 +46,7 @@ import org.onosproject.net.flowobjective.FlowObjectiveService;
 import org.onosproject.net.flowobjective.ForwardingObjective;
 import org.onosproject.ovsmanage.intf.OvsManageService;
 import org.onosproject.store.serializers.KryoNamespaces;
-import org.onosproject.store.service.AsyncDistributedSet;
 import org.onosproject.store.service.AtomicCounter;
-import org.onosproject.store.service.AtomicValue;
 import org.onosproject.store.service.DistributedSet;
 import org.onosproject.store.service.Serializer;
 import org.onosproject.store.service.StorageService;
@@ -74,19 +69,19 @@ public class OvsManageManager implements OvsManageService {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    DeviceService deviceService;
+    private DeviceService deviceService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    DriverService driverService;
+    private DriverService driverService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    FlowObjectiveService flowObjectiveService;
+    private FlowObjectiveService flowObjectiveService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    CoreService coreService;
+    private CoreService coreService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    StorageService storageService;
+    private StorageService storageService;
 
 
 
@@ -106,9 +101,12 @@ public class OvsManageManager implements OvsManageService {
     private DistributedSet<String> brNameSet;
 
 
-    DeviceId controllerId;
+    private DeviceId controllerId;
 
 
+    /**
+     * .
+     */
     @Activate
     protected void activate() {
         log.info("Started");
@@ -151,17 +149,20 @@ public class OvsManageManager implements OvsManageService {
         deviceService.addListener(innerDeviceListener);
 
         Iterator deviceIter = deviceService.getDevices().iterator();
-        while(deviceIter.hasNext()){
-            Device device = ((Device)deviceIter.next());
-            if(device.type() == Device.Type.CONTROLLER){
+        while (deviceIter.hasNext()) {
+            Device device = ((Device) deviceIter.next());
+            if (device.type() == Device.Type.CONTROLLER) {
                 controllerId = device.id();
             }
         }
-        if(controllerId == null) {
+        if (controllerId == null) {
             log.info("controllerId not ready now !!!");
         }
     }
 
+    /**
+     * .
+     */
     @Deactivate
     protected void deactivate() {
         deviceService.removeListener(innerDeviceListener);
@@ -171,34 +172,37 @@ public class OvsManageManager implements OvsManageService {
         log.info("Stopped");
     }
 
+    /**
+     * .
+     */
     @Override
-    public boolean createOVS(String brName, OvsDeviceType DeviceType){
-        if(controllerId == null) {
+    public boolean createOvs(String deviceName, OvsDeviceType deviceType) {
+        if (controllerId == null) {
             log.info("controllerId not ready!!!");
             return false;
         }
 
-        if(brNameSet == null){
+        if (brNameSet == null) {
             log.info("Bridge name set not ready!!!");
             return false;
         }
 
-        if(brNameSet.contains(brName)){
+        if (brNameSet.contains(deviceName)) {
             log.info("Bridge name existed");
             return false;
         } else {
-            brNameSet.add(brName);
+            brNameSet.add(deviceName);
         }
 
-        String DeviceId;
-        switch(DeviceType){
+        String deviceId;
+        switch (deviceType) {
             case CORE:
-                DeviceId = String.format("%16d",brCoreNumber.incrementAndGet()
-                        + CORE_DEVICEID_MANDATORY).replaceAll(" ","0");
+                deviceId = String.format("%16d", brCoreNumber.incrementAndGet()
+                        + CORE_DEVICEID_MANDATORY).replaceAll(" ", "0");
                 break;
             case ACCESS:
-                DeviceId = String.format("%16d",brAccessNumber.incrementAndGet()
-                        + ACCESS_DEVICEID_MANDATORY).replaceAll(" ","0");
+                deviceId = String.format("%16d", brAccessNumber.incrementAndGet()
+                        + ACCESS_DEVICEID_MANDATORY).replaceAll(" ", "0");
                 break;
             default:
                 log.info("OvsDeviceType error");
@@ -208,15 +212,18 @@ public class OvsManageManager implements OvsManageService {
 
         DriverHandler handler = driverService.createHandler(controllerId);
         BridgeConfig bridgeConfig = handler.behaviour(BridgeConfig.class);
-        bridgeConfig.addBridge(BridgeName.bridgeName(brName), DeviceId, (String)null);
+        bridgeConfig.addBridge(BridgeName.bridgeName(deviceName), deviceId, (String) null);
 
         return true;
     }
 
+    /**
+     *
+     */
     @Override
-    public List<BridgeDescription> getOVS(OvsDeviceType type){
+    public List<BridgeDescription> getOvs(OvsDeviceType type) {
 
-        if(controllerId == null) {
+        if (controllerId == null) {
             log.info("controllerId not ready!!!");
             return Collections.emptyList();
         }
@@ -226,91 +233,102 @@ public class OvsManageManager implements OvsManageService {
         Collection<BridgeDescription> devices;
         try {
             devices = bridgeConfig.getBridges();
-        }catch(Exception e){
+        } catch (Exception e) {
             return Collections.emptyList();
         }
 
-        if(type == null){
+        if (type == null) {
             return devices.stream().collect(Collectors.toList());
-        }else{
-            if(type == OvsDeviceType.CORE) {
+        } else {
+            if (type == OvsDeviceType.CORE) {
                 return devices.stream()
                         .filter(device -> {
                             String datapathId = device.deviceId().toString().split(":")[1];
                             if (Integer.valueOf(datapathId) > CORE_DEVICEID_MANDATORY) {
                                 return true;
-                            } else {
-                                return false;
                             }
+                            return false;
                         })
                         .collect(Collectors.toList());
-            }else if(type == OvsDeviceType.ACCESS){
+            } else if (type == OvsDeviceType.ACCESS) {
                 return devices.stream()
                         .filter(device -> {
                             String datapathId = device.deviceId().toString().split(":")[1];
                             if (Integer.valueOf(datapathId) < CORE_DEVICEID_MANDATORY) {
                                 return true;
-                            } else {
-                                return false;
                             }
+                            return false;
                         })
                         .collect(Collectors.toList());
-            }else{
+            } else {
                 return Collections.emptyList();
             }
         }
     }
 
+    /**
+     *
+     */
     @Override
-    public boolean deleteOVS(String DeviceName){
-        if(controllerId == null) {
+    public boolean deleteOvs(String deviceName) {
+        if (controllerId == null) {
             log.info("controllerId not ready!!!");
             return false;
         }
 
-        if(brNameSet == null){
+        if (brNameSet == null) {
             log.info("Bridge name set");
             return false;
         }
 
-        if(!brNameSet.contains(DeviceName)) {
+        if (!brNameSet.contains(deviceName)) {
             log.info("Bridge not exist");
             return false;
         }
 
         DriverHandler handler = driverService.createHandler(controllerId);
         BridgeConfig bridgeConfig = handler.behaviour(BridgeConfig.class);
-        bridgeConfig.deleteBridge(BridgeName.bridgeName(DeviceName));
+        bridgeConfig.deleteBridge(BridgeName.bridgeName(deviceName));
 
-        brNameSet.remove(DeviceName);
+        brNameSet.remove(deviceName);
 
         return true;
     }
 
-
-    private class InnerDeviceListener implements DeviceListener{
-
+    /**
+     * .
+     */
+    private class InnerDeviceListener implements DeviceListener {
         @Override
-        public void event(DeviceEvent event){
+        public void event(DeviceEvent event) {
 
-            if(!event.type().equals(DeviceEvent.Type.DEVICE_ADDED))
+            if (!event.type().equals(DeviceEvent.Type.DEVICE_ADDED)) {
                 return;
+            }
 
             Device device = event.subject();
 
-            if(device.type()==Device.Type.CONTROLLER){
+            if (device.type() == Device.Type.CONTROLLER) {
                 dealController(device.id());
             } else {
                 dealSwitch(device.id());
             }
         }
 
-        private void dealController(DeviceId deviceId){
+        /**
+         * Catch the new OVSDB connection.
+         * @param deviceId : The OVSDB connection ID.
+         */
+        private void dealController(DeviceId deviceId) {
             controllerId = deviceId;
             log.info("controllerId is ready !!!");
         }
 
-        private void dealSwitch(DeviceId deviceId){
+        /**
+         * Separate two type of switches.
+         * @param deviceId : The DeviceId of target device.
+         */
+        private void dealSwitch(DeviceId deviceId) {
             String datapathId = deviceId.toString().split(":")[1];
             if (Integer.valueOf(datapathId) > CORE_DEVICEID_MANDATORY) {
                 dealCoreSwitch(deviceId);
@@ -318,7 +336,12 @@ public class OvsManageManager implements OvsManageService {
                 dealAccessSwitch(deviceId);
             }
         }
-        private void dealCoreSwitch(DeviceId deviceId){
+
+        /**
+         * Add specific ForwardingObject to CORE switch.
+         * @param deviceId : The DeviceId of target device.
+         */
+        private void dealCoreSwitch(DeviceId deviceId) {
             TrafficSelector.Builder trafficSelectorBuilder0 = DefaultTrafficSelector.builder();
             trafficSelectorBuilder0.matchEthType(EthType.EtherType.IPV4.ethType().toShort())
                     .matchIPDst(IpPrefix.valueOf("192.168.1.1/28"))
@@ -330,7 +353,12 @@ public class OvsManageManager implements OvsManageService {
             addForward(deviceId, BOTH_TABLE_PRIORITY,
                        trafficSelectorBuilder0.build(), trafficTreatmentBuilder0.build());
         }
-        private void dealAccessSwitch(DeviceId deviceId){
+
+        /**
+         * Add specific ForwardingObject to ACCESS switch.
+         * @param deviceId : The DeviceId of target device.
+         */
+        private void dealAccessSwitch(DeviceId deviceId) {
             TrafficSelector.Builder trafficSelectorBuilder0 = DefaultTrafficSelector.builder();
             trafficSelectorBuilder0.matchEthType(EthType.EtherType.IPV4.ethType().toShort())
                     .matchIPSrc(IpPrefix.valueOf("10.0.0.0/24"));
@@ -352,7 +380,14 @@ public class OvsManageManager implements OvsManageService {
                        trafficSelectorBuilder1.build(), trafficTreatmentBuilder1.build());
         }
 
-        private void addForward(DeviceId deviceId, int priority, TrafficSelector selector, TrafficTreatment treatment){
+        /**
+         * Utility method to add ForwardingObjective.
+         * @param deviceId : The DeviceId of target device.
+         * @param priority : Priority of ForwardingObjective.
+         * @param selector : Match fields.
+         * @param treatment : Instructions.
+         */
+        private void addForward(DeviceId deviceId, int priority, TrafficSelector selector, TrafficTreatment treatment) {
 
             ForwardingObjective.Builder forwardingObjectiveBuilder = DefaultForwardingObjective.builder();
             forwardingObjectiveBuilder

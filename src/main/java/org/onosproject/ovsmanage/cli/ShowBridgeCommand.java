@@ -25,7 +25,7 @@ import org.onosproject.ovsmanage.intf.OvsManageService;
 import java.util.List;
 
 /**
- * CLI to create an OVS switch
+ * CLI to show OVS switches.
  */
 @Command(scope = "onos", name = "show-bridge",
         description = "delete a bridge on specific OVS")
@@ -35,7 +35,7 @@ public class ShowBridgeCommand extends AbstractShellCommand {
 
     @Argument(index = 0, name = "bridge-type", description = "type of Bridge",
             required = false, multiValued = false)
-    String bridgeType;
+    private String bridgeType;
 
     @Override
     protected void execute() {
@@ -45,25 +45,31 @@ public class ShowBridgeCommand extends AbstractShellCommand {
         OvsManageService ovsService = AbstractShellCommand.get(OvsManageService.class);
 
         String typeStr = "All";
-        if(bridgeType != null){
-            if(bridgeType.toLowerCase().equals("core")){
+        if (bridgeType != null) {
+            if (bridgeType.toLowerCase().equals("core")) {
                 type = OvsManageService.OvsDeviceType.CORE;
                 typeStr = "Core";
 
-            }else if(bridgeType.toLowerCase().equals("access")){
+            } else if (bridgeType.toLowerCase().equals("access")) {
                 type = OvsManageService.OvsDeviceType.ACCESS;
                 typeStr = "Access";
             }
-            printBridge(ovsService.getOVS(type), typeStr);
-        }else{
-            printBridge(ovsService.getOVS(OvsManageService.OvsDeviceType.CORE), "Core");
+            printBridge(ovsService.getOvs(type), typeStr);
+        } else {
+            printBridge(ovsService.getOvs(OvsManageService.OvsDeviceType.CORE), "Core");
             print("\n--------------------------------------");
-            printBridge(ovsService.getOVS(OvsManageService.OvsDeviceType.ACCESS), "Access");
+            printBridge(ovsService.getOvs(OvsManageService.OvsDeviceType.ACCESS), "Access");
         }
     }
-    private void printBridge(List<BridgeDescription> bridges, String typeStr){
+
+    /**
+     * .
+     * @param bridges
+     * @param typeStr
+     */
+    private void printBridge(List<BridgeDescription> bridges, String typeStr) {
         print("\n%s Device count: %d\n", typeStr, bridges.size());
-        for(BridgeDescription desc : bridges) {
+        for (BridgeDescription desc : bridges) {
             print("Device name: %-20.20s Device Id: %s",
                   desc.bridgeName().name(), desc.deviceId().toString());
         }

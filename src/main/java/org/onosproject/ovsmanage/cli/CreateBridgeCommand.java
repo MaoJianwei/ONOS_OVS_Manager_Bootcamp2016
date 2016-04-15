@@ -22,7 +22,7 @@ import org.onosproject.cli.AbstractShellCommand;
 import org.onosproject.ovsmanage.intf.OvsManageService;
 
 /**
- * CLI to create an OVS switch
+ * CLI to create an OVS switch.
  */
 @Command(scope = "onos", name = "create-bridge",
         description = "Create a bridge on specific OVS")
@@ -32,34 +32,34 @@ public class CreateBridgeCommand extends AbstractShellCommand {
 
     @Argument(index = 0, name = "bridge-name", description = "name of Bridge",
             required = true, multiValued = false)
-    String bridgeName;
+    private String bridgeName;
 
     @Argument(index = 1, name = "bridge-type", description = "type of Bridge",
             required = true, multiValued = false)
-    String bridgeType;
-    
+    private String bridgeType;
+
     @Override
     protected void execute() {
 
-        if(bridgeName == null || bridgeType == null){
+        if (bridgeName == null || bridgeType == null) {
             return;
         }
 
         OvsManageService.OvsDeviceType deviceType;
-        if(bridgeType.toLowerCase().equals("core")){
+        if (bridgeType.toLowerCase().equals("core")) {
             deviceType = OvsManageService.OvsDeviceType.CORE;
-        }else if(bridgeType.toLowerCase().equals("access")){
+        } else if (bridgeType.toLowerCase().equals("access")) {
             deviceType = OvsManageService.OvsDeviceType.ACCESS;
-        }else{
+        } else {
             print("usage:  create-bridge bridgename 'core'/'access'");
             return;
         }
 
         OvsManageService ovsService = AbstractShellCommand.get(OvsManageService.class);
 
-        if(ovsService.createOVS(bridgeName, deviceType)){
+        if (ovsService.createOvs(bridgeName, deviceType)) {
             print(CREATE_BRIDGE_FORMAT, bridgeName);
-        }else{
+        } else {
             print(CREATE_BRIDGE_FORMAT, "fail");
         }
     }
