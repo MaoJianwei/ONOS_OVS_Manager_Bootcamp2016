@@ -60,7 +60,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Skeletal ONOS application component.
+ * OVS Switch Manage Manager.
  */
 @Component(immediate = true)
 @Service
@@ -105,7 +105,7 @@ public class OvsManageManager implements OvsManageService {
 
 
     /**
-     * .
+     * Activate.
      */
     @Activate
     protected void activate() {
@@ -161,7 +161,7 @@ public class OvsManageManager implements OvsManageService {
     }
 
     /**
-     * .
+     * Deactivate.
      */
     @Deactivate
     protected void deactivate() {
@@ -173,7 +173,10 @@ public class OvsManageManager implements OvsManageService {
     }
 
     /**
-     * .
+     * Create an OVS switch.
+     * @param deviceName : Switch name.
+     * @param deviceType : Switch type, use enum OvsDeviceType below.
+     * @return
      */
     @Override
     public boolean createOvs(String deviceName, OvsDeviceType deviceType) {
@@ -218,7 +221,9 @@ public class OvsManageManager implements OvsManageService {
     }
 
     /**
-     *
+     * Get a List of the BridgeDescription of OVS switches connecting to ONOS.
+     * @param type : Switch type, use enum OvsDeviceType below.
+     * @return : List of the BridgeDescription, if fail or have no switch, it is emptyList.
      */
     @Override
     public List<BridgeDescription> getOvs(OvsDeviceType type) {
@@ -267,7 +272,9 @@ public class OvsManageManager implements OvsManageService {
     }
 
     /**
-     *
+     * Delete an OVS switch.
+     * @param deviceName : Switch name.
+     * @return : if delete successfully.
      */
     @Override
     public boolean deleteOvs(String deviceName) {
@@ -296,7 +303,7 @@ public class OvsManageManager implements OvsManageService {
     }
 
     /**
-     * .
+     * Listener to Device Event and OVSDB connection
      */
     private class InnerDeviceListener implements DeviceListener {
         @Override

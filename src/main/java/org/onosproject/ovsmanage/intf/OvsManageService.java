@@ -20,7 +20,7 @@ import org.onosproject.net.behaviour.BridgeDescription;
 import java.util.List;
 
 /**
- * .
+ * OVS Switch Manage Service.
  */
 public interface OvsManageService {
 
@@ -33,7 +33,7 @@ public interface OvsManageService {
     boolean createOvs(String deviceName, OvsDeviceType deviceType);
 
     /**
-     * Create an OVS switch.
+     * Delete an OVS switch.
      * @param deviceName : Switch name.
      * @return : if delete successfully.
      */
