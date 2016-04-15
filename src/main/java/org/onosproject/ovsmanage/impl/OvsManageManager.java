@@ -29,6 +29,7 @@ import org.onosproject.net.behaviour.BridgeName;
 import org.onosproject.net.device.DeviceService;
 import org.onosproject.net.driver.DriverHandler;
 import org.onosproject.net.driver.DriverService;
+import org.onosproject.ovsmanage.intf.OvsManageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,8 @@ import java.util.Iterator;
  * Skeletal ONOS application component.
  */
 @Component(immediate = true)
-public class OvsManager {
+@Service
+public class OvsManageManager implements OvsManageService {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -63,12 +65,9 @@ public class OvsManager {
                 controllerId = device.id();
             }
         }
-
-
-        DriverHandler handler = driverService.createHandler(controllerId);
-        BridgeConfig bridgeConfig = handler.behaviour(BridgeConfig.class);
-        bridgeConfig.addBridge(BridgeName.bridgeName("maotestbr"), "0000000000123456","qindao");
-
+        if(controllerId == null) {
+            log.info("controllerId not ready!!!");
+        }
 
         int a = 0;
     }
@@ -76,6 +75,18 @@ public class OvsManager {
     @Deactivate
     protected void deactivate() {
         log.info("Stopped");
+    }
+
+    @Override
+    public boolean createOVS(String brName, String dpid, String exPort){
+        if(controllerId == null)
+            return false;
+
+        DriverHandler handler = driverService.createHandler(controllerId);
+        BridgeConfig bridgeConfig = handler.behaviour(BridgeConfig.class);
+        bridgeConfig.addBridge(BridgeName.bridgeName(brName), dpid, exPort);
+
+        return true;
     }
 
 }
