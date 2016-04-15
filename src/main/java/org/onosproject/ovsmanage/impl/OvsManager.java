@@ -13,34 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onosproject;
+package org.onosproject.ovsmanage.impl;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Set of tests of the ONOS application component.
+ * Skeletal ONOS application component.
  */
-public class AppComponentTest {
+@Component(immediate = true)
+public class OvsManager {
 
-    private AppComponent component;
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Before
-    public void setUp() {
-        component = new AppComponent();
-        component.activate();
-
+    @Activate
+    protected void activate() {
+        log.info("Started");
     }
 
-    @After
-    public void tearDown() {
-        component.deactivate();
-    }
-
-    @Test
-    public void basics() {
-
+    @Deactivate
+    protected void deactivate() {
+        log.info("Stopped");
     }
 
 }
