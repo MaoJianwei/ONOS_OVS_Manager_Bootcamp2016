@@ -88,8 +88,8 @@ public class OvsManageManager implements OvsManageService {
     private static final int BOTH_TABLE_PRIORITY = 60000;
     private static final int ONE_TABLE_PRIORITY = 65535;
 
-    private static final int ACCESS_DEVICEID_MANDATORY = 0;
-    private static final int CORE_DEVICEID_MANDATORY = 100000000;
+    private static final int ACCESS_DEVICEID_CARDINALITY = 0;
+    private static final int CORE_DEVICEID_CARDINALITY = 100000000;
 
 
     private InnerDeviceListener innerDeviceListener;
@@ -201,11 +201,11 @@ public class OvsManageManager implements OvsManageService {
         switch (deviceType) {
             case CORE:
                 deviceId = String.format("%16d", brCoreNumber.incrementAndGet()
-                        + CORE_DEVICEID_MANDATORY).replaceAll(" ", "0");
+                        + CORE_DEVICEID_CARDINALITY).replaceAll(" ", "0");
                 break;
             case ACCESS:
                 deviceId = String.format("%16d", brAccessNumber.incrementAndGet()
-                        + ACCESS_DEVICEID_MANDATORY).replaceAll(" ", "0");
+                        + ACCESS_DEVICEID_CARDINALITY).replaceAll(" ", "0");
                 break;
             default:
                 log.info("OvsDeviceType error");
@@ -249,7 +249,7 @@ public class OvsManageManager implements OvsManageService {
                 return devices.stream()
                         .filter(device -> {
                             String datapathId = device.deviceId().toString().split(":")[1];
-                            if (Integer.valueOf(datapathId) > CORE_DEVICEID_MANDATORY) {
+                            if (Integer.valueOf(datapathId) > CORE_DEVICEID_CARDINALITY) {
                                 return true;
                             }
                             return false;
@@ -259,7 +259,7 @@ public class OvsManageManager implements OvsManageService {
                 return devices.stream()
                         .filter(device -> {
                             String datapathId = device.deviceId().toString().split(":")[1];
-                            if (Integer.valueOf(datapathId) < CORE_DEVICEID_MANDATORY) {
+                            if (Integer.valueOf(datapathId) < CORE_DEVICEID_CARDINALITY) {
                                 return true;
                             }
                             return false;
@@ -337,7 +337,7 @@ public class OvsManageManager implements OvsManageService {
          */
         private void dealSwitch(DeviceId deviceId) {
             String datapathId = deviceId.toString().split(":")[1];
-            if (Integer.valueOf(datapathId) > CORE_DEVICEID_MANDATORY) {
+            if (Integer.valueOf(datapathId) > CORE_DEVICEID_CARDINALITY) {
                 dealCoreSwitch(deviceId);
             } else {
                 dealAccessSwitch(deviceId);
