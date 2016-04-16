@@ -6,7 +6,7 @@ Group 4: ONOS BeiXinTong
 
 Member: Jianwei Mao, Peng Zhang, Ling Jin, Tianfeng Ma
 
-            毛健炜，     张鹏，      金凌，    马田丰
+         毛健炜(北邮FNLab),张鹏(电信北研),金凌(电信上研),马田丰(联通@北京)
 
 ----------------------------------------------------------------------------------
 
