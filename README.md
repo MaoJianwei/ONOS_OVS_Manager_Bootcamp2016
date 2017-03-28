@@ -2,7 +2,7 @@
 
 Group 4: ONOS BeiXinTong
 
-            ONOS 北信通
+         ONOS 北信通
 
 Member: Jianwei Mao, Peng Zhang, Ling Jin, Tianfeng Ma
 
